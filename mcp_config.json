@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "db-1.1-connector": {
+      "command": "node",
+      "args": ["d:/DB 1.1/mcp-server.js"],
+      "env": {
+        "NODE_ENV": "production"
+      }
+    }
+  }
+}

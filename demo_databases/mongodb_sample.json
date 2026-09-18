@@ -1,0 +1,19 @@
+{
+  "users": [
+    { "name": "Alice Johnson", "email": "alice@mongodb.com", "role": "admin", "createdAt": "2026-09-07T10:00:00Z" },
+    { "name": "Bob Smith", "email": "bob@mongodb.com", "role": "developer", "createdAt": "2026-09-07T10:05:00Z" },
+    { "name": "Charlie Brown", "email": "charlie@mongodb.com", "role": "user", "createdAt": "2026-09-07T10:10:00Z" }
+  ],
+  "products": [
+    { "title": "Developer Laptop Pro 16\"", "category": "Electronics", "price": 2499.99, "stock": 45 },
+    { "title": "Ergonomic Mechanical Keyboard", "category": "Peripherals", "price": 149.50, "stock": 120 },
+    { "title": "4K UltraHD Monitor 32\"", "category": "Electronics", "price": 699.00, "stock": 30 }
+  ],
+  "orders": [
+    { "userEmail": "alice@mongodb.com", "totalAmount": 2649.49, "status": "completed" },
+    { "userEmail": "bob@mongodb.com", "totalAmount": 149.50, "status": "shipped" }
+  ],
+  "audit_logs": [
+    { "action": "MONGODB_INIT", "details": "MongoDB demo database seeded successfully." }
+  ]
+}

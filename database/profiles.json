@@ -1,0 +1,15 @@
+[
+  {
+    "id": "166552f7-c5ba-4341-815c-31ce15b78a0c",
+    "name": "My SQLITE DB",
+    "type": "sqlite",
+    "sourceType": "external_local",
+    "readOnly": true,
+    "config": {
+      "filepath": "D:\\DB 1.1\\test_mysql.sql",
+      "isDemo": false,
+      "readOnly": true
+    },
+    "createdAt": "2026-09-14T08:14:13.556Z"
+  }
+]

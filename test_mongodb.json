@@ -1,0 +1,19 @@
+{
+  "users": [
+    { "_id": "u1", "name": "Alice Johnson", "email": "alice@mongodb-demo.com", "role": "admin", "createdAt": "2026-09-07T10:00:00Z" },
+    { "_id": "u2", "name": "Bob Smith", "email": "bob@mongodb-demo.com", "role": "developer", "createdAt": "2026-09-07T10:05:00Z" },
+    { "_id": "u3", "name": "Charlie Brown", "email": "charlie@mongodb-demo.com", "role": "user", "createdAt": "2026-09-07T10:10:00Z" }
+  ],
+  "products": [
+    { "_id": "p1", "title": "Developer Laptop Pro 16\"", "category": "Electronics", "price": 2499.99, "stock": 45 },
+    { "_id": "p2", "title": "Ergonomic Mechanical Keyboard", "category": "Peripherals", "price": 149.50, "stock": 120 },
+    { "_id": "p3", "title": "4K UltraHD Monitor 32\"", "category": "Electronics", "price": 699.00, "stock": 30 }
+  ],
+  "orders": [
+    { "_id": "o1", "userEmail": "alice@mongodb-demo.com", "totalAmount": 2649.49, "status": "completed" },
+    { "_id": "o2", "userEmail": "bob@mongodb-demo.com", "totalAmount": 149.50, "status": "shipped" }
+  ],
+  "audit_logs": [
+    { "_id": "a1", "action": "MONGODB_LOCAL_INIT", "details": "Local MongoDB database JSON document initialized." }
+  ]
+}
