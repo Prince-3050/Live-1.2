@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const logDir = path.resolve(process.cwd(), 'logs');
+const logDir = process.env.VERCEL ? '/tmp' : path.resolve(process.cwd(), 'logs');
 const logFilePath = path.join(logDir, 'connector.log');
 
 function ensureLogDir() {

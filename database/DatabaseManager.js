@@ -8,7 +8,9 @@ const MongoDBConnector = require('./connectors/MongoDBConnector');
 const queryManager = require('./queryManager');
 const logger = require('./logger');
 
-const PROFILES_PATH = path.resolve(process.cwd(), 'database/profiles.json');
+const PROFILES_PATH = process.env.VERCEL
+  ? '/tmp/profiles.json'
+  : path.resolve(process.cwd(), 'database/profiles.json');
 
 class DatabaseManager {
   constructor() {
