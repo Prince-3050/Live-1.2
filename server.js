@@ -32,98 +32,109 @@ function checkOpenSshAvailable() {
 
 // Seed `./test.db`, `./test_mysql.db`, and `./test_postgres.db` for instant demo testing out-of-the-box
 function seedTestDatabase() {
-  const dbFiles = ['./test.db', './test_mysql.db', './test_postgres.db'];
+  const baseDir = process.env.VERCEL ? '/tmp' : process.cwd();
+  const dbFiles = [
+    path.join(baseDir, 'test.db'),
+    path.join(baseDir, 'test_mysql.db'),
+    path.join(baseDir, 'test_postgres.db')
+  ];
 
   dbFiles.forEach(file => {
-    const dbPath = path.resolve(process.cwd(), file);
-    const db = new sqlite3.Database(dbPath);
+    const dbPath = path.resolve(file);
+    try {
+      const db = new sqlite3.Database(dbPath);
 
-    db.serialize(() => {
-      db.run(`
-        CREATE TABLE IF NOT EXISTS users (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT NOT NULL,
-          email TEXT UNIQUE NOT NULL,
-          role TEXT DEFAULT 'user',
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-      `);
+      db.serialize(() => {
+        db.run(`
+          CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            role TEXT DEFAULT 'user',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+          )
+        `);
 
-      db.run(`
-        CREATE TABLE IF NOT EXISTS products (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          title TEXT NOT NULL,
-          category TEXT,
-          price REAL NOT NULL,
-          stock INTEGER DEFAULT 0
-        )
-      `);
+        db.run(`
+          CREATE TABLE IF NOT EXISTS products (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            category TEXT,
+            price REAL NOT NULL,
+            stock INTEGER DEFAULT 0
+          )
+        `);
 
-      db.run(`
-        CREATE TABLE IF NOT EXISTS orders (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          user_id INTEGER,
-          total_amount REAL,
-          status TEXT DEFAULT 'pending',
-          ordered_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (user_id) REFERENCES users(id)
-        )
-      `);
+        db.run(`
+          CREATE TABLE IF NOT EXISTS orders (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            total_amount REAL,
+            status TEXT DEFAULT 'pending',
+            ordered_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+          )
+        `);
 
-      db.run(`
-        CREATE TABLE IF NOT EXISTS audit_logs (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          action TEXT NOT NULL,
-          details TEXT,
-          timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-      `);
+        db.run(`
+          CREATE TABLE IF NOT EXISTS audit_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            action TEXT NOT NULL,
+            details TEXT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+          )
+        `);
 
-      db.get('SELECT COUNT(*) as count FROM users', (err, row) => {
-        if (!err && row && row.count === 0) {
-          const stmt = db.prepare('INSERT INTO users (name, email, role) VALUES (?, ?, ?)');
-          stmt.run('Alice Johnson', `alice@${path.basename(file, '.db')}.com`, 'admin');
-          stmt.run('Bob Smith', `bob@${path.basename(file, '.db')}.com`, 'developer');
-          stmt.run('Charlie Brown', `charlie@${path.basename(file, '.db')}.com`, 'user');
-          stmt.run('Diana Prince', `diana@${path.basename(file, '.db')}.com`, 'manager');
-          stmt.run('Ethan Hunt', `ethan@${path.basename(file, '.db')}.com`, 'user');
-          stmt.finalize();
+        db.get('SELECT COUNT(*) as count FROM users', (err, row) => {
+          if (!err && row && row.count === 0) {
+            const stmt = db.prepare('INSERT INTO users (name, email, role) VALUES (?, ?, ?)');
+            stmt.run('Alice Johnson', `alice@${path.basename(file, '.db')}.com`, 'admin');
+            stmt.run('Bob Smith', `bob@${path.basename(file, '.db')}.com`, 'developer');
+            stmt.run('Charlie Brown', `charlie@${path.basename(file, '.db')}.com`, 'user');
+            stmt.run('Diana Prince', `diana@${path.basename(file, '.db')}.com`, 'manager');
+            stmt.run('Ethan Hunt', `ethan@${path.basename(file, '.db')}.com`, 'user');
+            stmt.finalize();
 
-          const pStmt = db.prepare('INSERT INTO products (title, category, price, stock) VALUES (?, ?, ?, ?)');
-          pStmt.run('Developer Laptop Pro 16"', 'Electronics', 2499.99, 45);
-          pStmt.run('Ergonomic Mechanical Keyboard', 'Peripherals', 149.50, 120);
-          pStmt.run('4K UltraHD Monitor 32"', 'Electronics', 699.00, 30);
-          pStmt.run('Wireless Noise-Canceling Headphones', 'Audio', 299.99, 85);
-          pStmt.run('Standing Desk Converters', 'Furniture', 349.00, 15);
-          pStmt.finalize();
+            const pStmt = db.prepare('INSERT INTO products (title, category, price, stock) VALUES (?, ?, ?, ?)');
+            pStmt.run('Developer Laptop Pro 16"', 'Electronics', 2499.99, 45);
+            pStmt.run('Ergonomic Mechanical Keyboard', 'Peripherals', 149.50, 120);
+            pStmt.run('4K UltraHD Monitor 32"', 'Electronics', 699.00, 30);
+            pStmt.run('Wireless Noise-Canceling Headphones', 'Audio', 299.99, 85);
+            pStmt.run('Standing Desk Converters', 'Furniture', 349.00, 15);
+            pStmt.finalize();
 
-          const oStmt = db.prepare('INSERT INTO orders (user_id, total_amount, status) VALUES (?, ?, ?)');
-          oStmt.run(1, 2649.49, 'completed');
-          oStmt.run(2, 149.50, 'shipped');
-          oStmt.run(3, 699.00, 'pending');
-          oStmt.run(4, 648.99, 'completed');
-          oStmt.finalize();
+            const oStmt = db.prepare('INSERT INTO orders (user_id, total_amount, status) VALUES (?, ?, ?)');
+            oStmt.run(1, 2649.49, 'completed');
+            oStmt.run(2, 149.50, 'shipped');
+            oStmt.run(3, 699.00, 'pending');
+            oStmt.run(4, 648.99, 'completed');
+            oStmt.finalize();
 
-          const aStmt = db.prepare('INSERT INTO audit_logs (action, details) VALUES (?, ?)');
-          aStmt.run('SYSTEM_INIT', `Database ${file} seeded with default demo tables and initial dataset.`);
-          aStmt.run('USER_REGISTER', 'User Alice Johnson registered as admin.');
-          aStmt.finalize();
-        }
-        db.close();
+            const aStmt = db.prepare('INSERT INTO audit_logs (action, details) VALUES (?, ?)');
+            aStmt.run('SYSTEM_INIT', `Database ${file} seeded with default demo tables and initial dataset.`);
+            aStmt.run('USER_REGISTER', 'User Alice Johnson registered as admin.');
+            aStmt.finalize();
+          }
+          db.close();
+        });
       });
-    });
+    } catch (e) {
+      console.warn(`Could not seed SQLite database ${file}: ${e.message}`);
+    }
   });
-  console.log('✅ SQLite test.db, test_mysql.db, and test_postgres.db seeded with demo data!');
+  console.log('✅ SQLite test databases seeded with demo data!');
 }
 
 seedTestDatabase();
 
-// Real-time connection polling background worker (every 5 seconds)
-setInterval(() => {
-  dbManager.pollStatuses().catch(err => {
-    logger.error('POLL', 'Status poll error', { error: err.message });
-  });
-}, 5000);
+// Real-time connection polling background worker (every 5 seconds, standalone mode only)
+if (!process.env.VERCEL) {
+  setInterval(() => {
+    dbManager.pollStatuses().catch(err => {
+      logger.error('POLL', 'Status poll error', { error: err.message });
+    });
+  }, 5000);
+}
 
 // --- RESTful API Routes ---
 
@@ -319,13 +330,17 @@ app.get('*', (req, res) => {
   }
 });
 
-app.listen(PORT, '127.0.0.1', () => {
-  console.log(`=====================================`);
-  console.log(` DB 1.1 LOCAL DATABASE SYSTEM`);
-  console.log(`=====================================`);
-  console.log(`Application:        http://127.0.0.1:${PORT}`);
-  console.log(`Database connector: ACTIVE`);
-  console.log(`Status:             CONNECTED`);
-  console.log(`Log File:           ${logger.logFilePath}`);
-  console.log(`=====================================`);
-});
+if (!process.env.VERCEL && require.main === module) {
+  app.listen(PORT, '127.0.0.1', () => {
+    console.log(`=====================================`);
+    console.log(` DB 1.1 LOCAL DATABASE SYSTEM`);
+    console.log(`=====================================`);
+    console.log(`Application:        http://127.0.0.1:${PORT}`);
+    console.log(`Database connector: ACTIVE`);
+    console.log(`Status:             CONNECTED`);
+    console.log(`Log File:           ${logger.logFilePath}`);
+    console.log(`=====================================`);
+  });
+}
+
+module.exports = app;
